@@ -17,13 +17,13 @@ class Program
 
             Console.Write("\nPlease Select Option by first letter: ");
 
-            selection = Console.ReadLine();
+            selection = Console.ReadLine()!;
 
             switch(selection)
             {
                 case "a":
                 case "A":
-                    Console.Write("Add Book");
+                    Console.Write("\nAdd Book\n");
                     break;
                 case "s":
                 case "S":
@@ -38,7 +38,7 @@ class Program
                     Console.Write("Exit Out");
                     break;
                 default:
-                    Console.Write("Unknown option");
+                    Console.Write("\n\nUnknown option\n");
                     break;
             }
         }
