@@ -419,9 +419,14 @@ public class BookDatabase
 								$"{searchstate}",
 								$"{searchlocation}");
 					}
-					AnsiConsole.Write(table);
+				}
+				else
+				{
+					table = new Table();
+					table.AddColumn("This report has no entries");
 				}
 			}
+			AnsiConsole.Write(table);
 			connection.Close();
 		}
 	}
