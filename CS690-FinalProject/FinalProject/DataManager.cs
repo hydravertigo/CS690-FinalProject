@@ -312,8 +312,69 @@ public class DataManager
 		}
 	}
 
+	public void ReportBooks(string searchfield = "", string searchvalue = "")
+	{
+		using (var connection = new SqliteConnection("Data Source=books.db"))
+		{
+			connection.Open();
 
+			if ( searchfield == "" )
+			{
+				Console.Write("Field: ");
+				searchfield = Console.ReadLine();
+			}
 
+			if ( searchvalue == "" )
+			{
+				Console.Write("Value: ");
+				searchvalue = Console.ReadLine();
+			}
 
+			var command = connection.CreateCommand();
 
+			if ( searchfield == "All" && searchvalue == "All" )
+			{
+				command.CommandText = $"select * from books";
+			}
+			else
+				command.CommandText = $"select * from books where {searchfield} = $searchvalue";
+
+			command.Parameters.AddWithValue("$searchvalue", searchvalue);
+
+			var table = new Table();
+			
+			table.AddColumn("Title");
+			table.AddColumn("Author");
+			table.AddColumn("Genre");
+			table.AddColumn("Rating");
+			table.AddColumn("Location");
+			table.AddColumn("State");
+
+			using (var reader = command.ExecuteReader())
+			{
+				// Only show something on the screen if there are books to print
+				if ( reader.HasRows )
+				{
+					while (reader.Read())
+					{
+						var searchtitle = reader.GetString(0);
+						var searchauthor = reader.GetString(1);
+						var searchgenre = reader.GetString(2);
+						var searchrating = reader.GetValue(3);
+						var searchlocation = reader.GetString(4);
+						var searchstate = reader.GetString(5);
+
+						table.AddRow($"{searchtitle}",
+								$"{searchauthor}",
+								$"{searchgenre}",
+								$"{searchrating}",
+								$"{searchlocation}",
+								$"{searchstate}");
+					}
+					AnsiConsole.Write(table);
+				}
+			}
+			connection.Close();
+		}
+	}
 }
