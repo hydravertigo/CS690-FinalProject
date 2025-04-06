@@ -1,6 +1,8 @@
 namespace FinalProject.Tests;
 
-public class UnitTest1
+using FinalProject;
+
+public class SaveBookTest
 {
     [Fact]
     public void Test1()
