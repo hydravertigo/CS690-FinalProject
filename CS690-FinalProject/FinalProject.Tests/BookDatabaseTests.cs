@@ -2,7 +2,7 @@ namespace FinalProject.Tests;
 
 using FinalProject;
 
-public class BookTests
+public class BookDatabaseTests
 {
     [Fact]
     public void Test1()
