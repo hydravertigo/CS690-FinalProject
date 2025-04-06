@@ -51,13 +51,13 @@ public class BookDatabaseTests
 		bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf");
 
 		// Verify that the book is there
-		Assert.Equal(true,bookDatabase.SearchBook("Fakebook"));
+		Assert.Equal("Fakebook",bookDatabase.SearchBook("Fakebook"));
 
 		// Remove the book from the database
 		bookDatabase.RemoveBook("Fakebook");
 
 		// Verify that the book is absent
-		Assert.Equal(false,bookDatabase.SearchBook("Fakebook"));
+		Assert.Equal("",bookDatabase.SearchBook("Fakebook"));
 	}
 
 }
