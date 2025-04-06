@@ -12,7 +12,7 @@ public class BookDatabaseTests
 	}
 
 	[Fact]
-	public void AddBookTest()
+	public void AddBookCountTest()
 	{
 		// Get the current book count
 		int currentCount = bookDatabase.BookCount();
@@ -24,6 +24,15 @@ public class BookDatabaseTests
 		Assert.Equal(currentCount + 1,bookDatabase.BookCount());
 
 		// Get rid of our fake entry so it does not cause problems
+		bookDatabase.RemoveBook("Fakebook");
+	}
+
+	[Fact]
+	public void AddBookTest()
+	{
+		// We should get a true response when adding a new book to the database
+		Assert.Equal(true,bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
+
 		bookDatabase.RemoveBook("Fakebook");
 	}
 }

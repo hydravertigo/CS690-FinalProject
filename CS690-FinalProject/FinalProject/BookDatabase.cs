@@ -38,7 +38,7 @@ public class BookDatabase
 	}
 
 	// Add a book to the database
-	public void AddBook(string title = "",
+	public bool AddBook(string title = "",
 			string author = "",
 			string genre = "",
 			int rating = -1,
@@ -46,6 +46,9 @@ public class BookDatabase
 			string location = ""
 			)
 	{
+		// Assume the book does not get added
+		bool added = false;
+
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
 			connection.Open();
@@ -122,10 +125,12 @@ public class BookDatabase
 			// We cannot add the same title twice
 			try
 			{
+				added = true;
 				command.ExecuteNonQuery();
 			}
 			catch ( Exception e)
 			{
+				added = false;
 				Console.WriteLine(e.Message);
 				Console.WriteLine($"\nThe title {title} is already in the database. Use UpdateBook to change it\n");
 			}	
@@ -134,6 +139,7 @@ public class BookDatabase
 
 			SearchBook(title);
 		}
+		return added;
 	}
 
 	// Find a book based on its title
