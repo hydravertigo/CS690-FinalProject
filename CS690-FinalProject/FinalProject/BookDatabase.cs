@@ -143,8 +143,11 @@ public class BookDatabase
 	}
 
 	// Find a book based on its title
-	public void SearchBook(string title = "")
+	public string SearchBook(string title = "")
 	{
+		// Assume there is no book found
+		string foundbook = "";
+
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
 			var table = new Table();
@@ -175,26 +178,36 @@ public class BookDatabase
 
 			using (var reader = command.ExecuteReader())
 			{
-				while (reader.Read())
+				// Only show something on the screen if there are books to print
+				if ( reader.HasRows )
 				{
-					var searchtitle = reader.GetString(0);
+					reader.Read();
+
+					foundbook = reader.GetString(0);
+
 					var searchauthor = reader.GetString(1);
 					var searchgenre = reader.GetString(2);
 					var searchrating = reader.GetValue(3);
 					var searchstate = reader.GetString(4);
 					var searchlocation = reader.GetString(5);
 
-					table.AddRow($"{searchtitle}",
+					table.AddRow($"{foundbook}",
 							$"{searchauthor}",
 							$"{searchgenre}",
 							$"{searchrating}",
 							$"{searchstate}",
 							$"{searchlocation}");
+
+					AnsiConsole.Write(table);
+				}
+				else
+				{
+					Console.WriteLine($"\nThe title \"{title}\" is not in the database\n");
 				}
 			}
-			AnsiConsole.Write(table);
 			connection.Close();
 		}
+		return foundbook;
 	}
 
 	// Change our book
