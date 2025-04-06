@@ -12,7 +12,9 @@ public class ConsoleUI
                 .AddChoices(new[] {
                     "Add Book",
 						  "Search Book",
-						  "Report Book",
+						  "Update Book",
+						  "Remove Book",
+						  "Report Books",
 						  "Exit Program"
                 }));
 	}
