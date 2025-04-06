@@ -1,7 +1,5 @@
 namespace FinalProject;
 
-//using System;
-//using System.IO;
 using Microsoft.Data.Sqlite;
 using Spectre.Console;
 
@@ -89,8 +87,22 @@ public class BookDatabase
 
 			if ( state == "" )
 			{
-				Console.Write("State: ");
-				state = Console.ReadLine();
+				Console.WriteLine($"State : ({searchstate}) : ");
+				state = AnsiConsole.Prompt(
+						new SelectionPrompt<string>()
+						.Title("Please Choose State Option:")
+						.AddChoices(new[] {
+						"Owns",
+						"Wants",
+						"Selling",
+						"Sold"
+						}));
+			}
+
+			// Override the location selection if state is "Wants"
+			if ( state == "Wants" )
+			{
+				location = "Store"
 			}
 
 			var command = connection.CreateCommand();
@@ -241,10 +253,26 @@ public class BookDatabase
 					if ( newlocation != "" )
 						searchlocation = newlocation;	
 
-					Console.Write($"State : ({searchstate}) : ");
-					var newstate = Console.ReadLine();
-					if ( newstate != "" )
+					Console.WriteLine($"State : ({searchstate}) : ");
+					var newstate  = AnsiConsole.Prompt(
+							new SelectionPrompt<string>()
+							.Title("Please select option:")
+							.AddChoices(new[] {
+							"Keep Current State",
+							"Owns",
+							"Wants",
+							"Selling",
+							"Sold"
+							}));
+	
+					if ( newstate != "Keep Current State" )
 						searchstate = newstate;	
+
+					// If we have sold our book then its location can only be the store
+					if ( newstate == "Sold" )
+					{
+						searchlocation = "Store";
+					}
 
 					var updatecommand = connection.CreateCommand();
 
