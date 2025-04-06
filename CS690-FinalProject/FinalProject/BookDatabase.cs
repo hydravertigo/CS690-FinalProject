@@ -8,6 +8,9 @@ using Spectre.Console;
 
 public class BookDatabase
 {
+	// How many books are in the database
+	public int bookCount;
+
 	public BookDatabase()
 	{
 		if ( ! File.Exists("books.db"))
@@ -33,6 +36,26 @@ public class BookDatabase
 					";
 				command.ExecuteNonQuery();
 				//connection.Close();
+			}
+		}
+
+		using (var connection = new SqliteConnection("Data Source=books.db"))
+		{
+			connection.Open();
+
+			var command = connection.CreateCommand();
+
+			command.CommandText =
+				@"
+					select count(*) from books
+				";
+
+			using (var reader = command.ExecuteReader())
+			{
+				if ( reader.Read())
+				{
+					bookCount = int.Parse(reader.GetString(0));
+				}
 			}
 		}
 	}

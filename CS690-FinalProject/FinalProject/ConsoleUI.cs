@@ -26,6 +26,7 @@ public class ConsoleUI
 				  "Search Book",
 				  "Update Book",
 				  "Remove Book",
+				  "Count Books",
 				  "Report Books",
 				  "Exit Program"
 				}));
@@ -34,17 +35,21 @@ public class ConsoleUI
 			{
 				bookDatabase.AddBook();
 			}
-			else if ( mode == "Search Book")
+			else if ( mode == "Search Book" )
 			{
 				bookDatabase.SearchBook();
 			}
-			else if ( mode == "Update Book")
+			else if ( mode == "Update Book" )
 			{
 				bookDatabase.UpdateBook();
 			}
-			else if ( mode == "Remove Book")
+			else if ( mode == "Remove Book" )
 			{
 				bookDatabase.RemoveBook();
+			}
+			else if ( mode == "Count Books" )
+			{
+				Console.WriteLine($"\nThere are {bookDatabase.bookCount} books in the database\n");
 			}
 			else if ( mode == "Report Books")
 			{

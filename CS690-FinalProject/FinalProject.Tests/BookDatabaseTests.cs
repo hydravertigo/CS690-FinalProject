@@ -4,9 +4,15 @@ using FinalProject;
 
 public class BookDatabaseTests
 {
-    [Fact]
-    public void Test1()
-    {
+	BookDatabase bookDatabase;
 
-    }
+	public BookDatabaseTests()
+	{
+		bookDatabase = new BookDatabase();
+	}
+
+	[Fact]
+	public void AddBookTest()
+	{
+	}
 }
