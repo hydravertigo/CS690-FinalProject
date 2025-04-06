@@ -1,4 +1,12 @@
-namespace FinalProject
+namespace FinalProject;
+
+//using System;
+//using System.IO;
+using Microsoft.Data.Sqlite;
+//using Spectre.Console;
+
+#pragma warning disable CS8604 // Do not fuss about null int conversions
+#pragma warning disable CS8600 // Do not fuss about null string conversions
 
 public class DataManager
 {
