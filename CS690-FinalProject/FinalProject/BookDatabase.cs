@@ -26,8 +26,8 @@ public class BookDatabase
 							author text not null,
 							genre text  not null,
 							rating integer not null,
-							location text not null,
 							state text not null,
+							location text not null,
 							primary key(title)
 						);
 					";
@@ -42,8 +42,8 @@ public class BookDatabase
 			string author = "",
 			string genre = "",
 			int rating = -1,
-			string location = "",
-			string state = ""
+			string state = "",
+			string location = ""
 			)
 	{
 		using (var connection = new SqliteConnection("Data Source=books.db"))
@@ -74,20 +74,14 @@ public class BookDatabase
 				rating = int.Parse(Console.ReadLine());
 			}
 
+			// Correct our rating range
 			if ( rating < 1 )
 				rating = 1;
 			else if ( rating > 5 )
 				rating = 5;
 
-			if ( location == "")
-			{
-				Console.Write("Location: ");
-				location = Console.ReadLine();
-			}
-
 			if ( state == "" )
 			{
-				Console.WriteLine($"State : ({searchstate}) : ");
 				state = AnsiConsole.Prompt(
 						new SelectionPrompt<string>()
 						.Title("Please Choose State Option:")
@@ -99,10 +93,15 @@ public class BookDatabase
 						}));
 			}
 
-			// Override the location selection if state is "Wants"
+			// If the state is "Wants" then the location must be the store
 			if ( state == "Wants" )
 			{
-				location = "Store"
+				location = "Store";
+			}
+			else if ( location == "")
+			{
+				Console.Write("Location: ");
+				location = Console.ReadLine();
 			}
 
 			var command = connection.CreateCommand();
@@ -117,8 +116,8 @@ public class BookDatabase
 			command.Parameters.AddWithValue("$author", author);
 			command.Parameters.AddWithValue("$genre", genre);
 			command.Parameters.AddWithValue("$rating", rating);
-			command.Parameters.AddWithValue("$location", location);
 			command.Parameters.AddWithValue("$state", state);
+			command.Parameters.AddWithValue("$location", location);
 
 			// We cannot add the same title twice
 			try
@@ -148,8 +147,8 @@ public class BookDatabase
 			table.AddColumn("Author");
 			table.AddColumn("Genre");
 			table.AddColumn("Rating");
-			table.AddColumn("Location");
 			table.AddColumn("State");
+			table.AddColumn("Location");
 
 			connection.Open();
 
@@ -176,15 +175,15 @@ public class BookDatabase
 					var searchauthor = reader.GetString(1);
 					var searchgenre = reader.GetString(2);
 					var searchrating = reader.GetValue(3);
-					var searchlocation = reader.GetString(4);
-					var searchstate = reader.GetString(5);
+					var searchstate = reader.GetString(4);
+					var searchlocation = reader.GetString(5);
 
 					table.AddRow($"{searchtitle}",
 							$"{searchauthor}",
 							$"{searchgenre}",
 							$"{searchrating}",
-							$"{searchlocation}",
-							$"{searchstate}");
+							$"{searchstate}",
+							$"{searchlocation}");
 				}
 			}
 			AnsiConsole.Write(table);
@@ -224,8 +223,8 @@ public class BookDatabase
 					var searchauthor = reader.GetString(1);
 					var searchgenre = reader.GetString(2);
 					var searchrating = reader.GetValue(3);
-					var searchlocation = reader.GetString(4);
-					var searchstate = reader.GetString(5);
+					var searchstate = reader.GetString(4);
+					var searchlocation = reader.GetString(5);
 					reader.Close();
 
 					// We do not change our titles
@@ -248,11 +247,6 @@ public class BookDatabase
 					if ( newrating != "" )
 						searchrating = newrating;	
 
-					Console.Write($"Location : ({searchlocation}) :");
-					var newlocation = Console.ReadLine();
-					if ( newlocation != "" )
-						searchlocation = newlocation;	
-
 					Console.WriteLine($"State : ({searchstate}) : ");
 					var newstate  = AnsiConsole.Prompt(
 							new SelectionPrompt<string>()
@@ -273,6 +267,13 @@ public class BookDatabase
 					{
 						searchlocation = "Store";
 					}
+					else
+					{
+						Console.Write($"Location : ({searchlocation}) :");
+						var newlocation = Console.ReadLine();
+						if ( newlocation != "" )
+							searchlocation = newlocation;	
+					}
 
 					var updatecommand = connection.CreateCommand();
 
@@ -286,8 +287,8 @@ public class BookDatabase
 					updatecommand.Parameters.AddWithValue("$author", searchauthor);
 					updatecommand.Parameters.AddWithValue("$genre", searchgenre);
 					updatecommand.Parameters.AddWithValue("$rating", searchrating);
-					updatecommand.Parameters.AddWithValue("$location", searchlocation);
 					updatecommand.Parameters.AddWithValue("$state", searchstate);
+					updatecommand.Parameters.AddWithValue("$location", searchlocation);
 
 					updatecommand.ExecuteNonQuery();
 					connection.Close();
@@ -298,15 +299,15 @@ public class BookDatabase
 					table.AddColumn("Author");
 					table.AddColumn("Genre");
 					table.AddColumn("Rating");
-					table.AddColumn("Location");
 					table.AddColumn("State");
+					table.AddColumn("Location");
 
 					table.AddRow($"{searchtitle}",
 							$"{searchauthor}",
 							$"{searchgenre}",
 							$"{searchrating}",
-							$"{searchlocation}",
-							$"{searchstate}");
+							$"{searchstate}",
+							$"{searchlocation}");
 
 					AnsiConsole.Write(table);
 				}
@@ -375,8 +376,8 @@ public class BookDatabase
 			table.AddColumn("Author");
 			table.AddColumn("Genre");
 			table.AddColumn("Rating");
-			table.AddColumn("Location");
 			table.AddColumn("State");
+			table.AddColumn("Location");
 
 			using (var reader = command.ExecuteReader())
 			{
@@ -389,15 +390,15 @@ public class BookDatabase
 						var searchauthor = reader.GetString(1);
 						var searchgenre = reader.GetString(2);
 						var searchrating = reader.GetValue(3);
-						var searchlocation = reader.GetString(4);
-						var searchstate = reader.GetString(5);
+						var searchstate = reader.GetString(4);
+						var searchlocation = reader.GetString(5);
 
 						table.AddRow($"{searchtitle}",
 								$"{searchauthor}",
 								$"{searchgenre}",
 								$"{searchrating}",
-								$"{searchlocation}",
-								$"{searchstate}");
+								$"{searchstate}",
+								$"{searchlocation}");
 					}
 					AnsiConsole.Write(table);
 				}
