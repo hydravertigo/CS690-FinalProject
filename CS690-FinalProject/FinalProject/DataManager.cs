@@ -179,6 +179,141 @@ public class DataManager
 			connection.Close();
 		}
 	}
- 
+
+	// Change our book
+	public void UpdateBook(string title = "")
+	{
+		using (var connection = new SqliteConnection("Data Source=books.db"))
+		{
+			connection.Open();
+
+			if ( title == "")
+			{
+				Console.Write("Title: ");
+				title = Console.ReadLine();
+			}
+
+			var command = connection.CreateCommand();
+
+			command.CommandText =
+				@"
+					select * from books where title = $title
+				";
+
+			command.Parameters.AddWithValue("$title", title);
+
+			// Get the current settings
+			using (var reader = command.ExecuteReader())
+			{
+				// Assume there is only a single title returned
+				if (reader.Read())
+				{
+					var searchtitle = reader.GetString(0);
+					var searchauthor = reader.GetString(1);
+					var searchgenre = reader.GetString(2);
+					var searchrating = reader.GetValue(3);
+					var searchlocation = reader.GetString(4);
+					var searchstate = reader.GetString(5);
+					reader.Close();
+
+					// We do not change our titles
+					Console.WriteLine($"Title : {searchtitle}");
+
+					Console.WriteLine("Enter Update Information, press enter to keep current value: ");
+
+					Console.Write($"Author : ({searchauthor}) : ");
+					var newauthor = Console.ReadLine();
+					if ( newauthor != "" )
+						searchauthor = newauthor;	
+
+					Console.Write($"Genre : ({searchgenre}) : ");
+					var newgenre = Console.ReadLine();
+					if ( newgenre != "" )
+						searchgenre = newgenre;	
+
+					Console.Write($"Rating : ({searchrating}) :");
+					var newrating = Console.ReadLine();
+					if ( newrating != "" )
+						searchrating = newrating;	
+
+					Console.Write($"Location : ({searchlocation}) :");
+					var newlocation = Console.ReadLine();
+					if ( newlocation != "" )
+						searchlocation = newlocation;	
+
+					Console.Write($"State : ({searchstate}) : ");
+					var newstate = Console.ReadLine();
+					if ( newstate != "" )
+						searchstate = newstate;	
+
+					var updatecommand = connection.CreateCommand();
+
+					updatecommand.CommandText =
+						@"
+							REPLACE INTO books(title,author,genre,rating,location,state)
+							values ($title,$author,$genre,$rating,$location,$state)
+						";
+
+					updatecommand.Parameters.AddWithValue("$title", searchtitle);
+					updatecommand.Parameters.AddWithValue("$author", searchauthor);
+					updatecommand.Parameters.AddWithValue("$genre", searchgenre);
+					updatecommand.Parameters.AddWithValue("$rating", searchrating);
+					updatecommand.Parameters.AddWithValue("$location", searchlocation);
+					updatecommand.Parameters.AddWithValue("$state", searchstate);
+
+					updatecommand.ExecuteNonQuery();
+					connection.Close();
+
+					var table = new Table();
+					
+					table.AddColumn("Title");
+					table.AddColumn("Author");
+					table.AddColumn("Genre");
+					table.AddColumn("Rating");
+					table.AddColumn("Location");
+					table.AddColumn("State");
+
+					table.AddRow($"{searchtitle}",
+							$"{searchauthor}",
+							$"{searchgenre}",
+							$"{searchrating}",
+							$"{searchlocation}",
+							$"{searchstate}");
+
+					AnsiConsole.Write(table);
+				}
+			}
+		}
+	}
+
+	public void RemoveBook(string title = "")
+	{
+		using (var connection = new SqliteConnection("Data Source=books.db"))
+		{
+			connection.Open();
+
+			if ( title == "" )
+			{
+				Console.Write("Title: ");
+				title = Console.ReadLine();
+			}
+
+			var command = connection.CreateCommand();
+
+			command.CommandText =
+				@"
+					delete from books where title = $title
+				";
+
+			command.Parameters.AddWithValue("$title", title);
+
+			command.ExecuteNonQuery();
+			connection.Close();
+		}
+	}
+
+
+
+
 
 }
