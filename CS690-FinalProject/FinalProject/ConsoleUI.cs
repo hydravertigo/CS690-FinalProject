@@ -49,7 +49,8 @@ public class ConsoleUI
 			}
 			else if ( mode == "Count Books" )
 			{
-				Console.WriteLine($"\nThere are {bookDatabase.bookCount} books in the database\n");
+				var bookCount = bookDatabase.BookCount();
+				Console.WriteLine($"\nThere are {bookCount} books in the database\n");
 			}
 			else if ( mode == "Report Books")
 			{
