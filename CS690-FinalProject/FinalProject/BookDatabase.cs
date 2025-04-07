@@ -197,13 +197,15 @@ public class BookDatabase
 							$"{searchrating}",
 							$"{searchstate}",
 							$"{searchlocation}");
-
-					AnsiConsole.Write(table);
 				}
 				else
 				{
-					Console.WriteLine($"\nThe title \"{title}\" is not in the database\n");
+					table = new Table();
+					table.AddColumn($"The title \"{title}\" is not in the database");
 				}
+
+				AnsiConsole.Write(table);
+
 			}
 			connection.Close();
 		}
@@ -215,12 +217,20 @@ public class BookDatabase
 	{
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
+			var table = new Table();
+
 			connection.Open();
 
 			if ( title == "")
 			{
 				Console.Write("Title: ");
 				title = Console.ReadLine();
+			}
+
+			// Make sure that the title is in the database
+			if ( SearchBook(title) == "")
+			{
+				return;
 			}
 
 			var command = connection.CreateCommand();
@@ -235,9 +245,10 @@ public class BookDatabase
 			// Get the current settings
 			using (var reader = command.ExecuteReader())
 			{
-				// Assume there is only a single title returned
-				if (reader.Read())
+				// This should always return true
+				if ( reader.HasRows )
 				{
+					reader.Read();
 					var searchtitle = reader.GetString(0);
 					var searchauthor = reader.GetString(1);
 					var searchgenre = reader.GetString(2);
@@ -312,7 +323,7 @@ public class BookDatabase
 					updatecommand.ExecuteNonQuery();
 					connection.Close();
 
-					var table = new Table();
+					table = new Table();
 					
 					table.AddColumn("Title");
 					table.AddColumn("Author");
@@ -327,15 +338,17 @@ public class BookDatabase
 							$"{searchrating}",
 							$"{searchstate}",
 							$"{searchlocation}");
-
 					AnsiConsole.Write(table);
 				}
 			}
 		}
 	}
 
-	public void RemoveBook(string title = "")
+	public int RemoveBook(string title = "")
 	{
+		// Assume no books will be removed
+		int numberRemoved = 0;
+		
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
 			connection.Open();
@@ -344,6 +357,12 @@ public class BookDatabase
 			{
 				Console.Write("Title: ");
 				title = Console.ReadLine();
+			}
+
+			// If the title isn't in the database, then removing it means nothing
+			if ( SearchBook(title) == "")
+			{
+				return numberRemoved;
 			}
 
 			var command = connection.CreateCommand();
@@ -355,9 +374,11 @@ public class BookDatabase
 
 			command.Parameters.AddWithValue("$title", title);
 
-			command.ExecuteNonQuery();
+			numberRemoved = command.ExecuteNonQuery();
 			connection.Close();
 		}
+
+		return numberRemoved;
 	}
 
 	public void ReportBooks(string searchfield = "", string searchvalue = "")
