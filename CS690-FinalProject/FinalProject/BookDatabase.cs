@@ -376,6 +376,9 @@ public class BookDatabase
 
 			numberRemoved = command.ExecuteNonQuery();
 			connection.Close();
+
+			// Tell the user the book has been removed
+			Console.WriteLine("Status: Removed\n");
 		}
 
 		return numberRemoved;
