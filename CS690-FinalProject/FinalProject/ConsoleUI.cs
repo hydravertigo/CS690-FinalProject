@@ -22,6 +22,7 @@ public class ConsoleUI
 				new SelectionPrompt<string>()
 				.Title("Please select option:")
 				.AddChoices(new[] {
+				  "List All Books",
 				  "Add Book",
 				  "Search Book",
 				  "Update Book",
@@ -31,7 +32,13 @@ public class ConsoleUI
 				  "Exit Program"
 				}));
 
-			if (mode == "Add Book")
+			if (mode == "List All Books" )
+			{
+				bookDatabase.ReportBooks("All","All");
+				var bookCount = bookDatabase.BookCount();
+				Console.WriteLine($"\nThere are {bookCount} books in the database\n");
+			}
+			else if (mode == "Add Book")
 			{
 				bookDatabase.AddBook();
 			}
