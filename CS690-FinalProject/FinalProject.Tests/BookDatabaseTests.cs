@@ -102,9 +102,23 @@ public class BookDatabaseTests
 		Assert.Equal(0,bookDatabase.ReportBooks("",""));
 	}
 
-	//[Fact]
-	//public void UpdateBookTest()
-	//{
-	//}
+	[Fact]
+	public void UpdateBookTest()
+	{
+		// Add an imaginary book to the database
+		bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf");
+
+		// Verify that the book is there
+		Assert.Equal("Fakebook",bookDatabase.SearchBook("Fakebook"));
+
+		// Update the book, the book should get updated
+		Assert.True(bookDatabase.UpdateBook("Fakebook","Realauthor","FakeGenre",5,"Owns","Shelf"));
+
+		// Remove book, only 1 title should be removed
+		Assert.Equal(1,bookDatabase.RemoveBook("Fakebook"));
+
+		// Verify that the book is absent
+		Assert.Equal("",bookDatabase.SearchBook("Fakebook"));
+	}
 
 }

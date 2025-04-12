@@ -246,10 +246,9 @@ public class BookDatabase
 					string newLocation = "";
 
 					// We do not change our titles
-					Console.WriteLine($"Title : {searchTitle}");
 					newTitle = searchTitle;
 
-					Console.WriteLine("Enter Update Information, press enter to keep current value: ");
+					//Console.WriteLine("Enter Update Information, press enter to keep current value: ");
 
 					newAuthor = UpdateField("Author",inputAuthor,searchAuthor);
 
@@ -480,6 +479,7 @@ public class BookDatabase
 		if ( inputfield != "")
 			return inputfield;
 
+		Console.WriteLine("\nEnter Update Information, press enter to keep current value: ");
 		Console.Write($"{message} : ({field}) : ");
 		var answer = Console.ReadLine(); 
 
