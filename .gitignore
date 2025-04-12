@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Custom ignore entries for CS690-FinalProject
+**/books.db
+
 # dotenv files
 .env
 

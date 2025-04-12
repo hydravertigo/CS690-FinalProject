@@ -30,6 +30,12 @@ public class BookDatabase
 							location text not null,
 							primary key(title)
 						);
+
+						replace into books values('Alice in Wonderland','Lewis Carrol','Fantasy','5','Owns','Shelf');
+						replace into books values('Treasure Island','Robert Lewis Stevenson','Adventure','5','Owns','Shelf');
+						replace into books values('Dracula','Bram Stoker','Horror','5','Selling','Shelf');
+						replace into books values('Moby Dick','Herman Melville','Drama','1','Owns','Shelf');
+						replace into books values('Oliver Twist','Charles Dickens','Drama','4','Wants','Store');
 					";
 				command.ExecuteNonQuery();
 				//connection.Close();
@@ -451,6 +457,7 @@ public class BookDatabase
 				}
 			}
 			AnsiConsole.Write(table);
+			Console.WriteLine("\nTo print report: Copy and paste the above report into a text editor, then press CTRL-P\n");
 			connection.Close();
 		}
 	}

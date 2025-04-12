@@ -40,7 +40,7 @@ public class ConsoleUI
 			{
 				bookDatabase.ReportBooks("All","All");
 				var bookCount = bookDatabase.BookCount();
-				Console.WriteLine($"\nThere are {bookCount} books in the database\n");
+				Console.WriteLine($"There are {bookCount} books in the database\n");
 			}
 			else if (mode == "Add Book")
 			{
