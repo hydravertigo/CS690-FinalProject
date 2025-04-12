@@ -44,10 +44,17 @@ public class ConsoleUI
 			}
 			else if (mode == "Add Book")
 			{
+				// Get book details from user
 				string title = AskForInput("Title: ");
 				string author = AskForInput("Author: ");
 				string genre = AskForInput("Genre: ");
 				int rating = int.Parse(AskForInput("Rating (1-5): "));
+
+				// Correct our rating range
+				if ( rating < 1 )
+					rating = 1;
+				else if ( rating > 5 )
+					rating = 5;
 
 				string state = AnsiConsole.Prompt(
 					new SelectionPrompt<string>()
@@ -58,9 +65,17 @@ public class ConsoleUI
 					"Selling",
 					"Sold"
 					}));
-			
-				string location = AskForInput("Location: ");
 
+				// Determine location of book
+				string location;
+
+				// If the state is "Wants" then the location must be the store
+				if ( state == "Wants" )
+					location = "Store";
+				else // otherwise ask Sofia for a location string
+					location = AskForInput("Location: ");
+
+				// Attempt to add book to database
 				bookDatabase.AddBook(title,
 						author,
 						genre,
@@ -75,11 +90,13 @@ public class ConsoleUI
 			}
 			else if ( mode == "Update Book" )
 			{
-				bookDatabase.UpdateBook();
+				string title = AskForInput("Update Title: ");
+				bookDatabase.UpdateBook(title);
 			}
 			else if ( mode == "Remove Book" )
 			{
-				bookDatabase.RemoveBook();
+				string title = AskForInput("Remove Title: ");
+				bookDatabase.RemoveBook(title);
 			}
 			else if ( mode == "Count Books" )
 			{
@@ -130,6 +147,7 @@ public class ConsoleUI
 		}
 	}
 
+	// Method to get non-empty input string from user
 	public static string AskForInput(string message)
 	{
 		string answer = "";

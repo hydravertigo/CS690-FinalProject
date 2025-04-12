@@ -56,41 +56,30 @@ public class BookDatabase
 		// Assume the book does not get added
 		bool added = false;
 
+		// Fail fast and silently if any of our fields are empty
+
+		if ( title == "" )
+			return false;
+
+		if ( author == "" )
+			return false;
+
+		if ( genre == "" )
+			return false;
+
+		if ( rating == -1 )
+			return false;
+
+		if ( state == "")
+			return false;
+
+		if ( location == "")
+			return false;
+
+		// Connect to the database and attempt to add the book
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
 			connection.Open();
-
-			// Fail fast if any of our fields are empty
-
-			if ( title == "" )
-				return false;
-
-			if ( author == "" )
-				return false;
-
-			if ( genre == "" )
-				return false;
-
-			if ( rating == -1 )
-				return false;
-
-			if ( state == "")
-				return false;
-
-			if ( location == "")
-				return false;
-
-			// Correct errors in input values
-
-			// Correct our rating range
-			if ( rating < 1 )
-				rating = 1;
-			else if ( rating > 5 )
-				rating = 5;
-
-			// If the state is "Wants" then the location must be the store
-			if ( state == "Wants" )
-				location = "Store";
 
 			var command = connection.CreateCommand();
 
@@ -135,7 +124,7 @@ public class BookDatabase
 			return "";
 
 		// Assume there is no book found
-		string foundbook = "";
+		string foundtitle = "";
 
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
@@ -166,7 +155,7 @@ public class BookDatabase
 				{
 					reader.Read();
 
-					foundbook = reader.GetString(0);
+					foundtitle = reader.GetString(0);
 
 					var searchauthor = reader.GetString(1);
 					var searchgenre = reader.GetString(2);
@@ -174,7 +163,7 @@ public class BookDatabase
 					var searchstate = reader.GetString(4);
 					var searchlocation = reader.GetString(5);
 
-					table.AddRow($"{foundbook}",
+					table.AddRow($"{foundtitle}",
 							$"{searchauthor}",
 							$"{searchgenre}",
 							$"{searchrating}",
@@ -192,23 +181,21 @@ public class BookDatabase
 			}
 			connection.Close();
 		}
-		return foundbook;
+		return foundtitle;
 	}
 
 	// Change our book
 	public void UpdateBook(string title = "")
 	{
+		// If no title was provided then return silently
+		if ( title == "")
+			return;
+
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
 			var table = new Table();
 
 			connection.Open();
-
-			if ( title == "")
-			{
-				Console.Write("Title: ");
-				title = Console.ReadLine();
-			}
 
 			// Make sure that the title is in the database
 			if ( SearchBook(title) == "")
@@ -329,18 +316,16 @@ public class BookDatabase
 
 	public int RemoveBook(string title = "")
 	{
+		// If no title provided, then return no books have been removed
+		if ( title == "" )
+			return 0;
+
 		// Assume no books will be removed
 		int numberRemoved = 0;
 		
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
 			connection.Open();
-
-			if ( title == "" )
-			{
-				Console.Write("Title: ");
-				title = Console.ReadLine();
-			}
 
 			// If the title isn't in the database, then removing it means nothing
 			if ( SearchBook(title) == "")
