@@ -121,7 +121,7 @@ public class BookDatabase
 	// Find a book based on its title
 	public string SearchBook(string title = "")
 	{
-		// If no title was provided then silently return empty string
+		// If no title was provided then silently return empty string to indicate no book was found
 		if ( title == "" )
 			return "";
 
@@ -130,16 +130,9 @@ public class BookDatabase
 
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
-			var table = new Table();
-			
-			table.AddColumn("Title");
-			table.AddColumn("Author");
-			table.AddColumn("Genre");
-			table.AddColumn("Rating");
-			table.AddColumn("State");
-			table.AddColumn("Location");
-
 			connection.Open();
+
+			var table = new Table();
 
 			var command = connection.CreateCommand();
 
@@ -156,6 +149,13 @@ public class BookDatabase
 				if ( reader.HasRows )
 				{
 					reader.Read();
+					
+					table.AddColumn("Title");
+					table.AddColumn("Author");
+					table.AddColumn("Genre");
+					table.AddColumn("Rating");
+					table.AddColumn("State");
+					table.AddColumn("Location");
 
 					foundtitle = reader["Title"].ToString();
 
@@ -174,7 +174,6 @@ public class BookDatabase
 				}
 				else
 				{
-					table = new Table();
 					table.AddColumn($"The title \"{title}\" is not in the database");
 				}
 
