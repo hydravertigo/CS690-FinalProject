@@ -12,6 +12,14 @@ public class BookDatabaseTests
 	}
 
 	[Fact]
+	public void AddBookTest()
+	{
+		// We should get a true response when adding a new book to the database
+		Assert.True(bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
+		bookDatabase.RemoveBook("Fakebook");
+	}
+
+	[Fact]
 	public void AddBookCountTest()
 	{
 		// Get the current book count
@@ -28,10 +36,11 @@ public class BookDatabaseTests
 	}
 
 	[Fact]
-	public void AddBookTest()
+	public void AddBookTwiceTest()
 	{
-		// We should get a true response when adding a new book to the database
+		// We should get a false response when adding a book that is already present
 		Assert.True(bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
+		Assert.False(bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
 		bookDatabase.RemoveBook("Fakebook");
 	}
 
@@ -40,15 +49,6 @@ public class BookDatabaseTests
 	{
 		// We should get a false response when adding an empty book
 		Assert.False(bookDatabase.AddBook());
-	}
-
-	[Fact]
-	public void AddBookTwiceTest()
-	{
-		// We should get a false response when adding a book that is already present
-		Assert.True(bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
-		Assert.False(bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
-		bookDatabase.RemoveBook("Fakebook");
 	}
 
 	[Fact]

@@ -3,8 +3,9 @@ namespace FinalProject;
 using Microsoft.Data.Sqlite;
 using Spectre.Console;
 
-#pragma warning disable CS8604 // Do not fuss about null int conversions
 #pragma warning disable CS8600 // Do not fuss about null string conversions
+#pragma warning disable CS8603 // Do not fuss about null reference returns
+#pragma warning disable CS8604 // Do not fuss about null int conversions
 
 public class BookDatabase
 {
@@ -111,6 +112,7 @@ public class BookDatabase
 
 			connection.Close();
 
+			// Show the book we just added
 			SearchBook(title);
 		}
 		return added;
@@ -155,13 +157,12 @@ public class BookDatabase
 				{
 					reader.Read();
 
-					foundtitle = reader.GetString(0);
-
-					var searchauthor = reader.GetString(1);
-					var searchgenre = reader.GetString(2);
-					var searchrating = reader.GetValue(3);
-					var searchstate = reader.GetString(4);
-					var searchlocation = reader.GetString(5);
+					foundtitle = reader["Title"].ToString();
+					var searchauthor = reader["Author"].ToString();
+					var searchgenre = reader["Genre"].ToString();
+					var searchrating = reader["Rating"].ToString();
+					var searchstate = reader["State"].ToString();
+					var searchlocation = reader["Location"].ToString();
 
 					table.AddRow($"{foundtitle}",
 							$"{searchauthor}",
@@ -219,12 +220,14 @@ public class BookDatabase
 				if ( reader.HasRows )
 				{
 					reader.Read();
-					var searchtitle = reader.GetString(0);
-					var searchauthor = reader.GetString(1);
-					var searchgenre = reader.GetString(2);
-					var searchrating = reader.GetValue(3);
-					var searchstate = reader.GetString(4);
-					var searchlocation = reader.GetString(5);
+
+					var searchtitle = reader["Title"].ToString();
+					var searchauthor = reader["Author"].ToString();
+					var searchgenre = reader["Genre"].ToString();
+					var searchrating = reader["Rating"].ToString();
+					var searchstate = reader["State"].ToString();
+					var searchlocation = reader["Location"].ToString();
+
 					reader.Close();
 
 					// We do not change our titles
@@ -393,12 +396,12 @@ public class BookDatabase
 					{
 						resultCount++;
 
-						var searchtitle = reader.GetString(0);
-						var searchauthor = reader.GetString(1);
-						var searchgenre = reader.GetString(2);
-						var searchrating = reader.GetValue(3);
-						var searchstate = reader.GetString(4);
-						var searchlocation = reader.GetString(5);
+						var searchtitle = reader["Title"].ToString();
+						var searchauthor = reader["Author"].ToString();
+						var searchgenre = reader["Genre"].ToString();
+						var searchrating = reader["Rating"].ToString();
+						var searchstate = reader["State"].ToString();
+						var searchlocation = reader["Location"].ToString();
 
 						table.AddRow($"{searchtitle}",
 								$"{searchauthor}",

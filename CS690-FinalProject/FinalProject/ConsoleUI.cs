@@ -2,9 +2,9 @@ namespace FinalProject;
 
 using Spectre.Console;
 
+#pragma warning disable CS8600 // Do not fuss about null string conversions
 #pragma warning disable CS8603 // Do not fuss about null reference returns
 #pragma warning disable CS8604 // Do not fuss about null int conversions
-#pragma warning disable CS8600 // Do not fuss about null string conversions
 
 public class ConsoleUI
 {
@@ -39,8 +39,6 @@ public class ConsoleUI
 			if (mode == "List All Books" )
 			{
 				bookDatabase.ReportBooks("All","All");
-				var bookCount = bookDatabase.BookCount();
-				Console.WriteLine($"There are {bookCount} books in the database\n");
 			}
 			else if (mode == "Add Book")
 			{
