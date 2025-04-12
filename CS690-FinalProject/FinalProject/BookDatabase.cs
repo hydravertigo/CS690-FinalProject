@@ -10,6 +10,7 @@ public class BookDatabase
 {
 	public BookDatabase()
 	{
+		// If a book database does not exist, create a new database with sample entries
 		if ( ! File.Exists("books.db"))
 		{
 			using (var connection = new SqliteConnection("Data Source=books.db"))
