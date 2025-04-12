@@ -102,6 +102,16 @@ public class BookDatabaseTests
 		Assert.Equal(0,bookDatabase.ReportBooks("",""));
 	}
 
+	// A report of all books should return the same count as the BookCount function
+	[Fact]
+	public void AllBooksReportTest()
+	{
+		// Get the current book count
+		int currentCount = bookDatabase.BookCount();
+
+		Assert.Equal(currentCount,bookDatabase.ReportBooks("All","All"));
+	}
+
 	[Fact]
 	public void UpdateBookTest()
 	{
@@ -119,6 +129,14 @@ public class BookDatabaseTests
 
 		// Verify that the book is absent
 		Assert.Equal("",bookDatabase.SearchBook("Fakebook"));
+	}
+
+	// An missing book should not get updated
+	[Fact]
+	public void UpdateEmptyBookTest()
+	{
+		// Update the book, the book should get updated
+		Assert.False(bookDatabase.UpdateBook("MissingBook","FakeAuthor","FakeGenre",5,"Owns","Shelf"));
 	}
 
 }
