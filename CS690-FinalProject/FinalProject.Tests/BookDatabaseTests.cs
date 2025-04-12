@@ -39,7 +39,6 @@ public class BookDatabaseTests
 	public void AddEmptyBookTest()
 	{
 		// We should get a false response when adding an empty book
-		Console.WriteLine("Adding Empty book");
 		Assert.False(bookDatabase.AddBook());
 	}
 
@@ -67,5 +66,4 @@ public class BookDatabaseTests
 		// Verify that the book is absent
 		Assert.Equal("",bookDatabase.SearchBook("Fakebook"));
 	}
-
 }
