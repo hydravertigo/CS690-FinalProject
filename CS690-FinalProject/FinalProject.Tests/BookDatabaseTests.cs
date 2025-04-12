@@ -36,6 +36,14 @@ public class BookDatabaseTests
 	}
 
 	[Fact]
+	public void AddEmptyBookTest()
+	{
+		// We should get a false response when adding an empty book
+		Console.WriteLine("Adding Empty book");
+		Assert.False(bookDatabase.AddBook());
+	}
+
+	[Fact]
 	public void AddBookTwiceTest()
 	{
 		// We should get a false response when adding a book that is already present
