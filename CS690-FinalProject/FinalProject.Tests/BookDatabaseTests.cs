@@ -52,6 +52,20 @@ public class BookDatabaseTests
 	}
 
 	[Fact]
+	public void SearchEmptyBookTest()
+	{
+		// We should get an empty string back when we search for an empty title string
+		Assert.Equal("",bookDatabase.SearchBook(""));
+	}
+
+	[Fact]
+	public void SearchMissingBookTest()
+	{
+		// We should get an empty tring back when we search for a book that does not exist
+		Assert.Equal("",bookDatabase.SearchBook("_This_book_does_not_exist_fake_title"));
+	}
+
+	[Fact]
 	public void RemoveBookTest()
 	{
 		// Add an imaginary book to the database
@@ -60,10 +74,37 @@ public class BookDatabaseTests
 		// Verify that the book is there
 		Assert.Equal("Fakebook",bookDatabase.SearchBook("Fakebook"));
 
-		// Verify that only one book is removed
+		// Remove book, only 1 title should be removed
 		Assert.Equal(1,bookDatabase.RemoveBook("Fakebook"));
 
 		// Verify that the book is absent
 		Assert.Equal("",bookDatabase.SearchBook("Fakebook"));
 	}
+
+	[Fact]
+	public void RemoveEmptyBookTest()
+	{
+		// We should get a 0 response when trying to remove a non-existent book
+		Assert.Equal(0,bookDatabase.RemoveBook(""));
+	}
+
+	[Fact]
+	public void RemoveMissingBookTest()
+	{
+		// We should get an empty tring back when attempt to remove a book that does not exist
+		Assert.Equal(0,bookDatabase.RemoveBook("_This_book_does_not_exist_fake_title"));
+	}
+
+	[Fact]
+	public void EmptyReportTest()
+	{
+		// An empty report should return zero books
+		Assert.Equal(0,bookDatabase.ReportBooks("",""));
+	}
+
+	//[Fact]
+	//public void UpdateBookTest()
+	//{
+	//}
+
 }

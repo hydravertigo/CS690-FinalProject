@@ -162,5 +162,4 @@ public class ConsoleUI
 
 		return answer;
 	}
-
 }

@@ -187,7 +187,7 @@ public class BookDatabase
 	}
 
 	// Change our book
-	public bool UpdateBook(string inputTitle = "",
+	public bool UpdateBook(string inputTitle = ""
 			string inputAuthor = "",
 			string inputGenre = "",
 			int inputRating = -1,
@@ -195,6 +195,9 @@ public class BookDatabase
 			string inputLocation = ""
 			)
 	{
+		// Assume the book does not get added
+		bool updated = false;
+
 		// Fail fast and silently if there is no title to update
 		if ( inputTitle == "" )
 			return false;
@@ -206,7 +209,7 @@ public class BookDatabase
 			connection.Open();
 
 			// Make sure that the title is in the database
-			if ( SearchBook(inputTitle) == "")
+			if ( SearchBook(title) == "")
 			{
 				return false;
 			}
@@ -237,64 +240,51 @@ public class BookDatabase
 
 					reader.Close();
 
-					// Variables that our book will be set to in the database
-					string newTitle;
-					string newAuthor;
-					string newGenre;
-					string newRating;
-					string newState;
-					string newLocation = "";
-
 					// We do not change our titles
 					Console.WriteLine($"Title : {searchTitle}");
-					newTitle = searchTitle;
+					var newTitle = searchTitle;
 
 					Console.WriteLine("Enter Update Information, press enter to keep current value: ");
 
-					newAuthor = UpdateField("Author",inputAuthor,searchAuthor);
-
-					newGenre = UpdateField("Genre",inputGenre,searchGenre);
-
-					if ( inputRating == -1 )
-						newRating = UpdateField("Rating","",searchRating);
+					// For each field to update, check if it has been passed as a value
+					// If not, prompt the user update the value through the console
+					if (inputAuthor = "")
+						var newAuthor = UpdateField("Author",searchauthor);
 					else
-						newRating = inputRating.ToString();
+						newAuthor = inputAuthor;
+
+					var newgenre = UpdateField("Genre",searchgenre);
+
+					var newrating = UpdateField("Rating",searchrating);
 
 					// Assume we will keep the current state
-					newState = searchState;
+					var newstate = searchstate;
 
-					if ( inputState == "")
+					// Ask the user to select a new state
+					Console.WriteLine($"State : ({searchstate}) : ");
+					var newstateselect  = AnsiConsole.Prompt(
+							new SelectionPrompt<string>()
+							.Title("Please select option:")
+							.AddChoices(new[] {
+							"Keep Current State",
+							"Owns",
+							"Wants",
+							"Selling",
+							"Sold"
+							}));
+	
+					if ( newstateselect != "Keep Current State" )
+						newstate = newstateselect;
+
+					string newlocation;
+
+					// If we have sold our book then its location can only be the store
+					if ( newstate == "Sold" )
 					{
-						// Ask the user to select a new state
-
-						var keepStateOption = $"Keep Current State : ({searchState})";
-
-						//Console.WriteLine($"State : ({searchState}) : ");
-						var newStateSelect  = AnsiConsole.Prompt(
-								new SelectionPrompt<string>()
-								.Title("\nPlease select state:")
-								.AddChoices(new[] {
-								keepStateOption,
-								"Owns",
-								"Wants",
-								"Selling",
-								"Sold"
-								}));
-		
-						if ( newStateSelect != keepStateOption )
-							newState = newStateSelect;
+						newlocation = "Store";
 					}
-
-					if ( inputLocation == "" )
-					{
-						// If we have sold our book then its location can only be the store
-						if ( newState == "Sold" )
-						{
-							newLocation = "Store";
-						}
-						else
-							newLocation = UpdateField("Location",inputLocation,searchLocation);
-					}
+					else
+						newlocation = UpdateField("Location",searchlocation);
 
 					var updatecommand = connection.CreateCommand();
 
@@ -304,16 +294,16 @@ public class BookDatabase
 							values ($title,$author,$genre,$rating,$location,$state)
 						";
 
-					updatecommand.Parameters.AddWithValue("$title", newTitle);
-					updatecommand.Parameters.AddWithValue("$author", newAuthor);
-					updatecommand.Parameters.AddWithValue("$genre", newGenre);
-					updatecommand.Parameters.AddWithValue("$rating", newRating);
-					updatecommand.Parameters.AddWithValue("$state", newState);
-					updatecommand.Parameters.AddWithValue("$location", newLocation);
+					updatecommand.Parameters.AddWithValue("$title", newtitle);
+					updatecommand.Parameters.AddWithValue("$author", newauthor);
+					updatecommand.Parameters.AddWithValue("$genre", newgenre);
+					updatecommand.Parameters.AddWithValue("$rating", newrating);
+					updatecommand.Parameters.AddWithValue("$state", newstate);
+					updatecommand.Parameters.AddWithValue("$location", newlocation);
 
-					// If our query has not changed the title, then fail out
-					if ( updatecommand.ExecuteNonQuery() != 1 )
-						return false;
+					// If our query has changed the title then set our result to true
+					if ( command.ExecuteNonQuery() == 1 )
+						updated = true;
 
 					connection.Close();
 
@@ -326,17 +316,17 @@ public class BookDatabase
 					table.AddColumn("State");
 					table.AddColumn("Location");
 
-					table.AddRow($"{newTitle}",
-							$"{newAuthor}",
-							$"{newGenre}",
-							$"{newRating}",
-							$"{newState}",
-							$"{newLocation}");
+					table.AddRow($"{newtitle}",
+							$"{newauthor}",
+							$"{newgenre}",
+							$"{newrating}",
+							$"{newstate}",
+							$"{newlocation}");
 					AnsiConsole.Write(table);
 				}
 			}
 		}
-		return true;
+		return updated;
 	}
 
 	public int RemoveBook(string title = "")
@@ -475,11 +465,8 @@ public class BookDatabase
 	// Prompt user to enter value for field
 	// If user enters "" then return the existing field
 	// otherwise return the updated field
-	public static string UpdateField(string message, string inputfield, string field)
+	public static string UpdateField(string message, string field)
 	{
-		if ( inputfield != "")
-			return inputfield;
-
 		Console.Write($"{message} : ({field}) : ");
 		var answer = Console.ReadLine(); 
 
