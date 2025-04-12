@@ -60,8 +60,8 @@ public class BookDatabaseTests
 		// Verify that the book is there
 		Assert.Equal("Fakebook",bookDatabase.SearchBook("Fakebook"));
 
-		// Remove the book from the database
-		bookDatabase.RemoveBook("Fakebook");
+		// Verify that only one book is removed
+		Assert.Equal(1,bookDatabase.RemoveBook("Fakebook"));
 
 		// Verify that the book is absent
 		Assert.Equal("",bookDatabase.SearchBook("Fakebook"));
