@@ -105,7 +105,11 @@ public class ConsoleUI
 			}
 			else if ( mode == "Report Books")
 			{
-				var field = AnsiConsole.Prompt(
+				string field;
+				string searchvalue;
+
+				// What field will we search by
+				field = AnsiConsole.Prompt(
 				new SelectionPrompt<string>()
 				.Title("Please select option:")
 				.AddChoices(new[] {
@@ -119,12 +123,11 @@ public class ConsoleUI
 
 				if ( field == "All Books")
 				{
-					bookDatabase.ReportBooks("All","All");
+					field = "All";
+					searchvalue = "All";
 				}
 				else
 				{
-					string searchvalue;
-
 					if (field == "State")
 					{
 						searchvalue = AnsiConsole.Prompt(
@@ -141,8 +144,9 @@ public class ConsoleUI
 					{
 						searchvalue = AskForInput("Please enter a search value: ");
 					}
-					bookDatabase.ReportBooks(field,searchvalue);
 				}
+
+				bookDatabase.ReportBooks(field,searchvalue);
 			}
 		}
 	}

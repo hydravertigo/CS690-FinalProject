@@ -352,23 +352,17 @@ public class BookDatabase
 		return numberRemoved;
 	}
 
-	public void ReportBooks(string searchfield = "", string searchvalue = "")
+	public int ReportBooks(string searchfield = "", string searchvalue = "")
 	{
+		int resultCount = 0;
+
+		// If our search or value fields are empty then no books will be found
+		if ( searchfield == "" || searchvalue == "" )
+			return resultCount;
+
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
 			connection.Open();
-
-			if ( searchfield == "" )
-			{
-				Console.Write("Field: ");
-				searchfield = Console.ReadLine();
-			}
-
-			if ( searchvalue == "" )
-			{
-				Console.Write("Value: ");
-				searchvalue = Console.ReadLine();
-			}
 
 			var command = connection.CreateCommand();
 
@@ -397,6 +391,8 @@ public class BookDatabase
 				{
 					while (reader.Read())
 					{
+						resultCount++;
+
 						var searchtitle = reader.GetString(0);
 						var searchauthor = reader.GetString(1);
 						var searchgenre = reader.GetString(2);
@@ -419,13 +415,16 @@ public class BookDatabase
 				}
 			}
 			AnsiConsole.Write(table);
+			Console.WriteLine($"There are {resultCount} books in this report");
 			Console.WriteLine("\nTo print report: Copy and paste the above report into a text editor, then press CTRL-P\n");
 			connection.Close();
 		}
+		return resultCount;
 	}
 
 	public int BookCount()
 	{
+		// Assume there are no books in the database
 		int bookCount = 0;
 
 		using (var connection = new SqliteConnection("Data Source=books.db"))
@@ -442,9 +441,7 @@ public class BookDatabase
 			using (var reader = command.ExecuteReader())
 			{
 				if ( reader.Read())
-				{
 					bookCount = int.Parse(reader.GetString(0));
-				}
 			}
 		}
 		return bookCount;
