@@ -44,11 +44,34 @@ public class ConsoleUI
 			}
 			else if (mode == "Add Book")
 			{
-				bookDatabase.AddBook();
+				string title = AskForInput("Title: ");
+				string author = AskForInput("Author: ");
+				string genre = AskForInput("Genre: ");
+				int rating = int.Parse(AskForInput("Rating (1-5): "));
+
+				string state = AnsiConsole.Prompt(
+					new SelectionPrompt<string>()
+					.Title("Please Choose State Option:")
+					.AddChoices(new[] {
+					"Owns",
+					"Wants",
+					"Selling",
+					"Sold"
+					}));
+			
+				string location = AskForInput("Location: ");
+
+				bookDatabase.AddBook(title,
+						author,
+						genre,
+						rating,
+						state,
+						location);
 			}
 			else if ( mode == "Search Book" )
 			{
-				bookDatabase.SearchBook();
+				string title = AskForInput("Search Title: ");
+				bookDatabase.SearchBook(title);
 			}
 			else if ( mode == "Update Book" )
 			{
@@ -107,10 +130,17 @@ public class ConsoleUI
 		}
 	}
 
-    public static string AskForInput(string message)
-    {
-        Console.Write(message);
-        return Console.ReadLine();
-    }
+	public static string AskForInput(string message)
+	{
+		string answer = "";
+
+		while ( answer == "")
+		{
+			Console.Write(message);
+			answer = Console.ReadLine();
+		}
+
+		return answer;
+	}
 
 }

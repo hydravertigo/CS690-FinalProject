@@ -39,7 +39,7 @@ public class BookDatabase
 						replace into books values('Oliver Twist','Charles Dickens','Drama','4','Wants','Store');
 					";
 				command.ExecuteNonQuery();
-				//connection.Close();
+				connection.Close();
 			}
 		}
 	}
@@ -60,29 +60,27 @@ public class BookDatabase
 		{
 			connection.Open();
 
+			// Fail fast if any of our fields are empty
+
 			if ( title == "" )
-			{
-				Console.Write("Title: ");
-				title = Console.ReadLine();
-			}
+				return false;
 
 			if ( author == "" )
-			{
-				Console.Write("Author: ");
-				author = Console.ReadLine();
-			}
+				return false;
 
 			if ( genre == "" )
-			{
-				Console.Write("Genre: ");
-				genre = Console.ReadLine();
-			}
+				return false;
 
 			if ( rating == -1 )
-			{
-				Console.Write("Rating (1-5): ");
-				rating = int.Parse(Console.ReadLine());
-			}
+				return false;
+
+			if ( state == "")
+				return false;
+
+			if ( location == "")
+				return false;
+
+			// Correct errors in input values
 
 			// Correct our rating range
 			if ( rating < 1 )
@@ -90,29 +88,9 @@ public class BookDatabase
 			else if ( rating > 5 )
 				rating = 5;
 
-			if ( state == "" )
-			{
-				state = AnsiConsole.Prompt(
-						new SelectionPrompt<string>()
-						.Title("Please Choose State Option:")
-						.AddChoices(new[] {
-						"Owns",
-						"Wants",
-						"Selling",
-						"Sold"
-						}));
-			}
-
 			// If the state is "Wants" then the location must be the store
 			if ( state == "Wants" )
-			{
 				location = "Store";
-			}
-			else if ( location == "")
-			{
-				Console.Write("Location: ");
-				location = Console.ReadLine();
-			}
 
 			var command = connection.CreateCommand();
 
@@ -152,6 +130,10 @@ public class BookDatabase
 	// Find a book based on its title
 	public string SearchBook(string title = "")
 	{
+		// If no title was provided then silently return empty string
+		if ( title == "" )
+			return "";
+
 		// Assume there is no book found
 		string foundbook = "";
 
@@ -167,12 +149,6 @@ public class BookDatabase
 			table.AddColumn("Location");
 
 			connection.Open();
-
-			if ( title == "" )
-			{
-				Console.Write("Title: ");
-				title = Console.ReadLine();
-			}
 
 			var command = connection.CreateCommand();
 
