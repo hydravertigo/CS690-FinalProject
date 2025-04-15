@@ -135,7 +135,7 @@ public class BookDatabaseTests
 	[Fact]
 	public void UpdateEmptyBookTest()
 	{
-		// Update the book, the book should get updated
+		// Update the book, the book should not get updated
 		Assert.False(bookDatabase.UpdateBook("MissingBook","FakeAuthor","FakeGenre",5,"Owns","Shelf"));
 	}
 
