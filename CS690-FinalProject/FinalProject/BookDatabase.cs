@@ -107,7 +107,7 @@ public class BookDatabase
 			{
 				added = false;
 				Console.WriteLine(e.Message);
-				Console.WriteLine($"\nThe title {title} is already in the database. Use UpdateBook to change it\n");
+				Console.WriteLine($"The title {title} is already in the database. Use UpdateBook to change it\n");
 			}	
 
 			connection.Close();
