@@ -2,10 +2,6 @@ namespace FinalProject;
 
 using Spectre.Console;
 
-#pragma warning disable CS8600 // Do not fuss about null string conversions
-#pragma warning disable CS8603 // Do not fuss about null reference returns
-#pragma warning disable CS8604 // Do not fuss about null int conversions
-
 public class ConsoleUI
 {
 	BookDatabase bookDatabase;
@@ -157,7 +153,10 @@ public class ConsoleUI
 		while ( answer == "")
 		{
 			Console.Write(message);
-			answer = Console.ReadLine();
+
+			// This construction is a work around for warning 
+			// CS8600: Converting null literal or possible null value to non-nullable type
+			answer = Console.ReadLine() ?? "";
 		}
 
 		return answer;

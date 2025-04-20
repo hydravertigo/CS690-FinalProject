@@ -3,10 +3,6 @@ namespace FinalProject;
 using Microsoft.Data.Sqlite;
 using Spectre.Console;
 
-#pragma warning disable CS8600 // Do not fuss about null string conversions
-#pragma warning disable CS8603 // Do not fuss about null reference returns
-#pragma warning disable CS8604 // Do not fuss about null int conversions
-
 public class BookDatabase
 {
 	public BookDatabase()
@@ -107,7 +103,7 @@ public class BookDatabase
 			{
 				added = false;
 				Console.WriteLine(e.Message);
-				Console.WriteLine($"\nThe title {title} is already in the database. Use UpdateBook to change it\n");
+				Console.WriteLine($"The title {title} is already in the database. Use UpdateBook to change it\n");
 			}	
 
 			connection.Close();
@@ -157,7 +153,7 @@ public class BookDatabase
 					table.AddColumn("State");
 					table.AddColumn("Location");
 
-					foundtitle = reader["Title"].ToString();
+					foundtitle = reader["Title"].ToString() ?? "";
 
 					var searchauthor = reader["Author"].ToString();
 					var searchgenre = reader["Genre"].ToString();
@@ -227,22 +223,24 @@ public class BookDatabase
 				{
 					reader.Read();
 
-					var searchTitle = reader["Title"].ToString();
-					var searchAuthor = reader["Author"].ToString();
-					var searchGenre = reader["Genre"].ToString();
-					var searchRating = reader["Rating"].ToString();
-					var searchState = reader["State"].ToString();
-					var searchLocation = reader["Location"].ToString();
+					var searchTitle = reader["Title"].ToString() ?? "";
+					var searchAuthor = reader["Author"].ToString() ?? "" ;
+					var searchGenre = reader["Genre"].ToString() ?? "";
+					var searchRating = reader["Rating"].ToString() ?? "";
+					var searchState = reader["State"].ToString() ?? "";
+					var searchLocation = reader["Location"].ToString() ?? "";
 
 					reader.Close();
 
 					// Variables that our book will be set to in the database
-					string newTitle;
-					string newAuthor;
-					string newGenre;
-					string newRating;
-					string newState;
-					string newLocation = "";
+					// Let these strings be nullable to avoid
+					// CS8600: Converting null literal or possible null value to non-nullable type
+					string? newTitle;
+					string? newAuthor;
+					string? newGenre;
+					string? newRating;
+					string? newState;
+					string? newLocation = "";
 
 					// We do not change our titles
 					newTitle = searchTitle;
@@ -482,7 +480,7 @@ public class BookDatabase
 		Console.Write($"{message} : ({field}) : ");
 		var answer = Console.ReadLine(); 
 
-		if ( answer != "" )
+		if ( ! String.IsNullOrEmpty(answer))
 			field = answer;
 
 		return field;
