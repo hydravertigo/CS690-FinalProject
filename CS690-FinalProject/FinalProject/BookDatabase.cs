@@ -134,7 +134,7 @@ public class BookDatabase
 
 			using (var reader = command.ExecuteReader())
 			{
-				// Only show something on the screen if there are books to print
+				// Are there any books in the result set?
 				if ( reader.HasRows )
 				{
 					reader.Read();
@@ -165,7 +165,7 @@ public class BookDatabase
 					table.AddColumn($"The title \"{title}\" is not in the database");
 				}
 
-				// Only display our table if we're told to
+				// Only display our table if display == true
 				if ( display )
 					AnsiConsole.Write(table);
 
