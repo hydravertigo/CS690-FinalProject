@@ -70,27 +70,76 @@ public class ConsoleUI
 					location = AskForInput("Location: ");
 
 				// Attempt to add book to database
-				bookDatabase.AddBook(title,
-						author,
-						genre,
-						rating,
-						state,
-						location);
+				bookDatabase.AddBook(new Book(title,author,genre,rating,state,location));
+
+				// Show the book that we just tried to add
+				bookDatabase.SearchBook(title,true);
+
+				// Attempt to add book to database
+				//bookDatabase.AddBook(title,
+				//		author,
+				//		genre,
+				//		rating,
+				//		state,
+				//		location);
 			}
 			else if ( mode == "Search Book" )
 			{
 				string title = AskForInput("Search Title: ");
-				bookDatabase.SearchBook(title);
+				bookDatabase.SearchBook(title,true);
 			}
 			else if ( mode == "Update Book" )
 			{
 				string title = AskForInput("Update Title: ");
-				bookDatabase.UpdateBook(title);
+
+				// Search for our book in the database
+				Book foundBook = bookDatabase.SearchBook(title,true);
+
+				// Only update if the book is in the database
+				if ( ! String.IsNullOrEmpty(foundBook.ToString()))
+				{
+					// New console output table
+					//var table = new Table();
+
+					foundBook.Author = UpdateField("Author",foundBook.Author);
+					foundBook.Genre = UpdateField("Genre",foundBook.Genre);
+					foundBook.Rating = int.Parse(UpdateField("Rating",foundBook.Rating.ToString()));
+					
+					// Ask the user to select a new state
+					var keepStateOption = $"Keep Current State : ({foundBook.State})";
+
+					var newStateSelect  = AnsiConsole.Prompt(
+											new SelectionPrompt<string>()
+											.Title("\nPlease select state:")
+											.AddChoices(new[] {
+											keepStateOption,
+											"Owns",
+											"Wants",
+											"Selling",
+											"Sold"
+											}));
+					
+					if ( newStateSelect != keepStateOption )
+						foundBook.State = newStateSelect;
+
+					//If we have sold our book then its location can only be the store
+					if ( foundBook.State == "Sold" )
+						foundBook.Location = "Store";
+					else
+						foundBook.Location = UpdateField("Location",foundBook.Location);
+
+					// Now that all of the fields in our book object have been updated
+					// use this object to update the database
+					bookDatabase.UpdateBook(foundBook);
+
+					// Show us the new state for the book in the database
+					bookDatabase.SearchBook(foundBook.Title,true);
+				}
 			}
 			else if ( mode == "Remove Book" )
 			{
 				string title = AskForInput("Remove Title: ");
-				bookDatabase.RemoveBook(title);
+				bookDatabase.RemoveBook(title,true);
 			}
 			else if ( mode == "Count Books" )
 			{
@@ -161,4 +210,20 @@ public class ConsoleUI
 
 		return answer;
 	}
+
+	// Prompt user to enter value for field
+	// If user enters "" then return the existing field
+	// otherwise return the updated field
+	public static string UpdateField(string message, string field)
+	{
+		Console.WriteLine("\nEnter Update Information, press enter to keep current value: ");
+		Console.Write($"{message} : ({field}) : ");
+		var answer = Console.ReadLine(); 
+
+		if ( ! String.IsNullOrEmpty(answer))
+			field = answer;
+
+		return field;
+	}
+
 }

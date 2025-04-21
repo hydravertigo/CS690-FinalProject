@@ -15,7 +15,9 @@ public class BookDatabaseTests
 	public void AddBookTest()
 	{
 		// We should get a true response when adding a new book to the database
-		Assert.True(bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
+		Assert.True(bookDatabase.AddBook(new Book("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf")));
+		
+		// Clean up after ourselves
 		bookDatabase.RemoveBook("Fakebook");
 	}
 
@@ -26,7 +28,7 @@ public class BookDatabaseTests
 		int currentCount = bookDatabase.BookCount();
 
 		// Add an imaginary book to the database
-		bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf");
+		bookDatabase.AddBook(new Book("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
 
 		// Check that our count has incremented by one
 		Assert.Equal(currentCount + 1,bookDatabase.BookCount());
@@ -39,8 +41,10 @@ public class BookDatabaseTests
 	public void AddBookTwiceTest()
 	{
 		// We should get a false response when adding a book that is already present
-		Assert.True(bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
-		Assert.False(bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
+		Assert.True(bookDatabase.AddBook(new Book("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf")));
+		Assert.False(bookDatabase.AddBook(new Book("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf")));
+
+		// Clean up after ourselves
 		bookDatabase.RemoveBook("Fakebook");
 	}
 
@@ -48,37 +52,37 @@ public class BookDatabaseTests
 	public void AddEmptyBookTest()
 	{
 		// We should get a false response when adding an empty book
-		Assert.False(bookDatabase.AddBook());
+		Assert.False(bookDatabase.AddBook(new Book()));
 	}
 
 	[Fact]
 	public void SearchEmptyBookTest()
 	{
 		// We should get an empty string back when we search for an empty title string
-		Assert.Equal("",bookDatabase.SearchBook(""));
+		Assert.Equal("",bookDatabase.SearchBook("",false).ToString());
 	}
 
 	[Fact]
 	public void SearchMissingBookTest()
 	{
-		// We should get an empty tring back when we search for a book that does not exist
-		Assert.Equal("",bookDatabase.SearchBook("_This_book_does_not_exist_fake_title"));
+		// We should get an empty string back when we search for a book that does not exist
+		Assert.Equal("",bookDatabase.SearchBook("_This_book_does_not_exist_fake_title").ToString());
 	}
 
 	[Fact]
 	public void RemoveBookTest()
 	{
 		// Add an imaginary book to the database
-		bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf");
+		bookDatabase.AddBook(new Book("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf"));
 
 		// Verify that the book is there
-		Assert.Equal("Fakebook",bookDatabase.SearchBook("Fakebook"));
+		Assert.Equal("Fakebook",bookDatabase.SearchBook("Fakebook",false).ToString());
 
 		// Remove book, only 1 title should be removed
 		Assert.Equal(1,bookDatabase.RemoveBook("Fakebook"));
 
 		// Verify that the book is absent
-		Assert.Equal("",bookDatabase.SearchBook("Fakebook"));
+		Assert.Equal("",bookDatabase.SearchBook("Fakebook").ToString());
 	}
 
 	[Fact]
@@ -91,7 +95,7 @@ public class BookDatabaseTests
 	[Fact]
 	public void RemoveMissingBookTest()
 	{
-		// We should get an empty tring back when attempt to remove a book that does not exist
+		// We should get a false response back when we attempt to remove a book that does not exist
 		Assert.Equal(0,bookDatabase.RemoveBook("_This_book_does_not_exist_fake_title"));
 	}
 
@@ -115,28 +119,37 @@ public class BookDatabaseTests
 	[Fact]
 	public void UpdateBookTest()
 	{
-		// Add an imaginary book to the database
-		bookDatabase.AddBook("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf");
+		// Create an imaginary book
+		Book fakeBook = new Book("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf");
+
+		// Add the imaginary book to the database
+		bookDatabase.AddBook(fakeBook);
 
 		// Verify that the book is there
-		Assert.Equal("Fakebook",bookDatabase.SearchBook("Fakebook"));
+		Assert.Equal("Fakebook",bookDatabase.SearchBook("Fakebook",false).ToString());
 
-		// Update the book, the book should get updated
-		Assert.True(bookDatabase.UpdateBook("Fakebook","Realauthor","FakeGenre",5,"Owns","Shelf"));
+		// Change the author in our book object
+		fakeBook.Author="OtherAuthor";
+
+		// Update the book in the database, the book should get updated
+		Assert.True(bookDatabase.UpdateBook(fakeBook));
 
 		// Remove book, only 1 title should be removed
 		Assert.Equal(1,bookDatabase.RemoveBook("Fakebook"));
 
 		// Verify that the book is absent
-		Assert.Equal("",bookDatabase.SearchBook("Fakebook"));
+		Assert.Equal("",bookDatabase.SearchBook("Fakebook",false).ToString());
 	}
 
 	// An missing book should not get updated
 	[Fact]
 	public void UpdateEmptyBookTest()
 	{
-		// Update the book, the book should not get updated
-		Assert.False(bookDatabase.UpdateBook("MissingBook","FakeAuthor","FakeGenre",5,"Owns","Shelf"));
+		// Create an imaginary book
+		Book fakeBook = new Book("Fakebook","Fakeauthor","FakeGenre",5,"Owns","Shelf");
+
+		// Because this book has not been added to the database, it cannot be updated
+		Assert.False(bookDatabase.UpdateBook(fakeBook));
 	}
 
 }
