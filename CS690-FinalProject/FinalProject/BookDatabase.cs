@@ -248,7 +248,8 @@ public class BookDatabase
 			connection.Close();
 
 			// Tell the user the book has been removed
-			Console.WriteLine("Status: Removed\n");
+			if ( display )
+				Console.WriteLine("Status: Removed\n");
 		}
 
 		return numberRemoved;
