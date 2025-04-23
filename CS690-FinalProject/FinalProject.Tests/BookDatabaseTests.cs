@@ -106,6 +106,14 @@ public class BookDatabaseTests
 		Assert.Equal(0,bookDatabase.ReportBooks("",""));
 	}
 
+	[Fact]
+	public void MissingReportTest()
+	{
+		// A report that doesn't have any entries should return 0 books
+		Assert.Equal(0,bookDatabase.ReportBooks("Author","_non_existent_author"));
+	}
+
+
 	// A report of all books should return the same count as the BookCount function
 	[Fact]
 	public void AllBooksReportTest()

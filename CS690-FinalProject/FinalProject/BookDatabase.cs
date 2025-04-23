@@ -44,27 +44,30 @@ public class BookDatabase
 	// Add a book to the database
 	public bool AddBook(Book newBook, bool display=false)
 	{
-		// Assume the book does not get added
-		bool added = false;
+		// Assume the book gets added
+		bool added = true;
 
 		// Fail fast and silently if any of our fields are empty
 		if ( String.IsNullOrEmpty(newBook.Title))
-			return false;
+			added = false;
 
 		if ( String.IsNullOrEmpty(newBook.Author))
-			return false;
+			added = false;
 
 		if ( String.IsNullOrEmpty(newBook.Genre))
-			return false;
+			added = false;
 
 		if ( newBook.Rating == -1 )
-			return false;
+			added = false;
 
 		if ( String.IsNullOrEmpty(newBook.State))
-			return false;
+			added = false;
 
 		if ( String.IsNullOrEmpty(newBook.Location))
-			return false;
+			added = false;
+
+		if ( added == false)
+			return added;
 
 		// Connect to the database and attempt to add the book
 		using (var connection = new SqliteConnection("Data Source=books.db"))
