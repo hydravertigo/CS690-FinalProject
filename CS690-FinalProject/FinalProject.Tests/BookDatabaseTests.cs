@@ -113,7 +113,6 @@ public class BookDatabaseTests
 		Assert.Equal(0,bookDatabase.ReportBooks("Author","_non_existent_author"));
 	}
 
-
 	// A report of all books should return the same count as the BookCount function
 	[Fact]
 	public void AllBooksReportTest()
