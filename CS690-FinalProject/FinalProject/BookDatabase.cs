@@ -42,36 +42,32 @@ public class BookDatabase
 	}
 
 	// Add a book to the database
-	public bool AddBook(string title = "",
-			string author = "",
-			string genre = "",
-			int rating = -1,
-			string state = "",
-			string location = ""
-			)
+	public bool AddBook(Book newBook, bool display=false)
 	{
-		// Assume the book does not get added
-		bool added = false;
+		// Assume the book gets added
+		bool added = true;
 
 		// Fail fast and silently if any of our fields are empty
+		if ( String.IsNullOrEmpty(newBook.Title))
+			added = false;
 
-		if ( title == "" )
-			return false;
+		if ( String.IsNullOrEmpty(newBook.Author))
+			added = false;
 
-		if ( author == "" )
-			return false;
+		if ( String.IsNullOrEmpty(newBook.Genre))
+			added = false;
 
-		if ( genre == "" )
-			return false;
+		if ( newBook.Rating == -1 )
+			added = false;
 
-		if ( rating == -1 )
-			return false;
+		if ( String.IsNullOrEmpty(newBook.State))
+			added = false;
 
-		if ( state == "")
-			return false;
+		if ( String.IsNullOrEmpty(newBook.Location))
+			added = false;
 
-		if ( location == "")
-			return false;
+		if ( added == false)
+			return added;
 
 		// Connect to the database and attempt to add the book
 		using (var connection = new SqliteConnection("Data Source=books.db"))
@@ -86,12 +82,12 @@ public class BookDatabase
 					values ($title,$author,$genre,$rating,$location,$state)
 				";
 
-			command.Parameters.AddWithValue("$title", title);
-			command.Parameters.AddWithValue("$author", author);
-			command.Parameters.AddWithValue("$genre", genre);
-			command.Parameters.AddWithValue("$rating", rating);
-			command.Parameters.AddWithValue("$state", state);
-			command.Parameters.AddWithValue("$location", location);
+			command.Parameters.AddWithValue("$title", newBook.Title);
+			command.Parameters.AddWithValue("$author", newBook.Author);
+			command.Parameters.AddWithValue("$genre", newBook.Genre);
+			command.Parameters.AddWithValue("$rating", newBook.Rating);
+			command.Parameters.AddWithValue("$state", newBook.State);
+			command.Parameters.AddWithValue("$location", newBook.Location);
 
 			// We cannot add the same title twice
 			try
@@ -103,26 +99,26 @@ public class BookDatabase
 			{
 				added = false;
 				Console.WriteLine(e.Message);
-				Console.WriteLine($"The title {title} is already in the database. Use UpdateBook to change it\n");
+				Console.WriteLine($"The title {newBook.Title} is already in the database. Use UpdateBook to change it\n");
 			}	
 
 			connection.Close();
 
-			// Show the book we just added
-			SearchBook(title);
+			// Show the book we just added if display == true
+			SearchBook(newBook.Title, display);
 		}
 		return added;
 	}
 
 	// Find a book based on its title
-	public string SearchBook(string title = "")
+	public Book SearchBook(string title = "", bool display=false)
 	{
-		// If no title was provided then silently return empty string to indicate no book was found
-		if ( title == "" )
-			return "";
+		// Create empty book object that we'll fill with the book details we find
+		Book searchedBook = new Book();
 
-		// Assume there is no book found
-		string foundtitle = "";
+		// If no title was provided then silently return our empty book since there are no results
+		if ( String.IsNullOrEmpty(title))
+			return searchedBook;
 
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
@@ -141,7 +137,7 @@ public class BookDatabase
 
 			using (var reader = command.ExecuteReader())
 			{
-				// Only show something on the screen if there are books to print
+				// Are there any books in the result set?
 				if ( reader.HasRows )
 				{
 					reader.Read();
@@ -153,192 +149,82 @@ public class BookDatabase
 					table.AddColumn("State");
 					table.AddColumn("Location");
 
-					foundtitle = reader["Title"].ToString() ?? "";
+					searchedBook.Title = reader["Title"].ToString() ?? "";
+					searchedBook.Author = reader["Author"].ToString() ?? "";
+					searchedBook.Genre  = reader["Genre"].ToString() ?? "";
+					searchedBook.Rating = int.Parse(reader["Rating"].ToString() ?? "");
+					searchedBook.State  = reader["State"].ToString() ?? "";
+					searchedBook.Location = reader["Location"].ToString() ?? "";
 
-					var searchauthor = reader["Author"].ToString();
-					var searchgenre = reader["Genre"].ToString();
-					var searchrating = reader["Rating"].ToString();
-					var searchstate = reader["State"].ToString();
-					var searchlocation = reader["Location"].ToString();
-
-					table.AddRow($"{foundtitle}",
-							$"{searchauthor}",
-							$"{searchgenre}",
-							$"{searchrating}",
-							$"{searchstate}",
-							$"{searchlocation}");
+					table.AddRow($"{searchedBook.Title}",
+							$"{searchedBook.Author}",
+							$"{searchedBook.Genre}",
+							$"{searchedBook.Rating}",
+							$"{searchedBook.State}",
+							$"{searchedBook.Location}");
 				}
 				else
 				{
 					table.AddColumn($"The title \"{title}\" is not in the database");
 				}
 
-				AnsiConsole.Write(table);
+				// Only display our table if display == true
+				if ( display )
+					AnsiConsole.Write(table);
 
 			}
 			connection.Close();
 		}
-		return foundtitle;
+		return searchedBook;
 	}
 
 	// Change our book
-	public bool UpdateBook(string inputTitle = "",
-			string inputAuthor = "",
-			string inputGenre = "",
-			int inputRating = -1,
-			string inputState = "",
-			string inputLocation = ""
-			)
+	public bool UpdateBook(Book inputBook, bool display=false)
 	{
 		// Fail fast and silently if there is no title to update
-		if ( inputTitle == "" )
+		if ( String.IsNullOrEmpty(inputBook.Title))
 			return false;
 
+		// Make sure the title is in the database
+		if ( String.IsNullOrEmpty(SearchBook(inputBook.Title,false).ToString()))
+			return false;
+
+		// Update the database 
 		using (var connection = new SqliteConnection("Data Source=books.db"))
 		{
-			var table = new Table();
-
 			connection.Open();
 
-			// Make sure that the title is in the database
-			if ( SearchBook(inputTitle) == "")
-			{
-				return false;
-			}
+			var updatecommand = connection.CreateCommand();
 
-			var command = connection.CreateCommand();
-
-			command.CommandText =
+			updatecommand.CommandText =
 				@"
-					select * from books where title = $title
+					REPLACE INTO books(title,author,genre,rating,location,state)
+					values ($title,$author,$genre,$rating,$location,$state)
 				";
 
-			command.Parameters.AddWithValue("$title", inputTitle);
+			updatecommand.Parameters.AddWithValue("$title", inputBook.Title);
+			updatecommand.Parameters.AddWithValue("$author", inputBook.Author);
+			updatecommand.Parameters.AddWithValue("$genre", inputBook.Genre);
+			updatecommand.Parameters.AddWithValue("$rating", inputBook.Rating);
+			updatecommand.Parameters.AddWithValue("$state", inputBook.State);
+			updatecommand.Parameters.AddWithValue("$location", inputBook.Location);
 
-			// Get the current settings
-			using (var reader = command.ExecuteReader())
-			{
-				// This should always return true
-				if ( reader.HasRows )
-				{
-					reader.Read();
+			// If our query has not changed anything, then fail out
+			if ( updatecommand.ExecuteNonQuery() != 1 )
+				return false;
 
-					var searchTitle = reader["Title"].ToString() ?? "";
-					var searchAuthor = reader["Author"].ToString() ?? "" ;
-					var searchGenre = reader["Genre"].ToString() ?? "";
-					var searchRating = reader["Rating"].ToString() ?? "";
-					var searchState = reader["State"].ToString() ?? "";
-					var searchLocation = reader["Location"].ToString() ?? "";
+			connection.Close();
 
-					reader.Close();
-
-					// Variables that our book will be set to in the database
-					// Let these strings be nullable to avoid
-					// CS8600: Converting null literal or possible null value to non-nullable type
-					string? newTitle;
-					string? newAuthor;
-					string? newGenre;
-					string? newRating;
-					string? newState;
-					string? newLocation = "";
-
-					// We do not change our titles
-					newTitle = searchTitle;
-
-					//Console.WriteLine("Enter Update Information, press enter to keep current value: ");
-
-					newAuthor = UpdateField("Author",inputAuthor,searchAuthor);
-
-					newGenre = UpdateField("Genre",inputGenre,searchGenre);
-
-					if ( inputRating == -1 )
-						newRating = UpdateField("Rating","",searchRating);
-					else
-						newRating = inputRating.ToString();
-
-					// Assume we will keep the current state
-					newState = searchState;
-
-					if ( inputState == "")
-					{
-						// Ask the user to select a new state
-
-						var keepStateOption = $"Keep Current State : ({searchState})";
-
-						//Console.WriteLine($"State : ({searchState}) : ");
-						var newStateSelect  = AnsiConsole.Prompt(
-								new SelectionPrompt<string>()
-								.Title("\nPlease select state:")
-								.AddChoices(new[] {
-								keepStateOption,
-								"Owns",
-								"Wants",
-								"Selling",
-								"Sold"
-								}));
-		
-						if ( newStateSelect != keepStateOption )
-							newState = newStateSelect;
-					}
-
-					if ( inputLocation == "" )
-					{
-						// If we have sold our book then its location can only be the store
-						if ( newState == "Sold" )
-						{
-							newLocation = "Store";
-						}
-						else
-							newLocation = UpdateField("Location",inputLocation,searchLocation);
-					}
-
-					var updatecommand = connection.CreateCommand();
-
-					updatecommand.CommandText =
-						@"
-							REPLACE INTO books(title,author,genre,rating,location,state)
-							values ($title,$author,$genre,$rating,$location,$state)
-						";
-
-					updatecommand.Parameters.AddWithValue("$title", newTitle);
-					updatecommand.Parameters.AddWithValue("$author", newAuthor);
-					updatecommand.Parameters.AddWithValue("$genre", newGenre);
-					updatecommand.Parameters.AddWithValue("$rating", newRating);
-					updatecommand.Parameters.AddWithValue("$state", newState);
-					updatecommand.Parameters.AddWithValue("$location", newLocation);
-
-					// If our query has not changed the title, then fail out
-					if ( updatecommand.ExecuteNonQuery() != 1 )
-						return false;
-
-					connection.Close();
-
-					table = new Table();
-					
-					table.AddColumn("Title");
-					table.AddColumn("Author");
-					table.AddColumn("Genre");
-					table.AddColumn("Rating");
-					table.AddColumn("State");
-					table.AddColumn("Location");
-
-					table.AddRow($"{newTitle}",
-							$"{newAuthor}",
-							$"{newGenre}",
-							$"{newRating}",
-							$"{newState}",
-							$"{newLocation}");
-					AnsiConsole.Write(table);
-				}
-			}
+			if ( display )
+				SearchBook(inputBook.Title,display);
 		}
 		return true;
 	}
 
-	public int RemoveBook(string title = "")
+	public int RemoveBook(string title = "", bool display = false)
 	{
 		// If no title provided, then return no books have been removed
-		if ( title == "" )
+		if ( String.IsNullOrEmpty(title))
 			return 0;
 
 		// Assume no books will be removed
@@ -349,10 +235,8 @@ public class BookDatabase
 			connection.Open();
 
 			// If the title isn't in the database, then removing it means nothing
-			if ( SearchBook(title) == "")
-			{
+			if ( SearchBook(title,display).ToString() == "")
 				return numberRemoved;
-			}
 
 			var command = connection.CreateCommand();
 
@@ -367,7 +251,8 @@ public class BookDatabase
 			connection.Close();
 
 			// Tell the user the book has been removed
-			Console.WriteLine("Status: Removed\n");
+			if ( display )
+				Console.WriteLine("Status: Removed\n");
 		}
 
 		return numberRemoved;
@@ -378,7 +263,7 @@ public class BookDatabase
 		int resultCount = 0;
 
 		// If our search or value fields are empty then no books will be found
-		if ( searchfield == "" || searchvalue == "" )
+		if ( String.IsNullOrEmpty(searchfield) || String.IsNullOrEmpty(searchvalue))
 			return resultCount;
 
 		using (var connection = new SqliteConnection("Data Source=books.db"))
@@ -467,23 +352,4 @@ public class BookDatabase
 		}
 		return bookCount;
 	}
-
-	// Prompt user to enter value for field
-	// If user enters "" then return the existing field
-	// otherwise return the updated field
-	public static string UpdateField(string message, string inputfield, string field)
-	{
-		if ( inputfield != "")
-			return inputfield;
-
-		Console.WriteLine("\nEnter Update Information, press enter to keep current value: ");
-		Console.Write($"{message} : ({field}) : ");
-		var answer = Console.ReadLine(); 
-
-		if ( ! String.IsNullOrEmpty(answer))
-			field = answer;
-
-		return field;
-	}
-
 }
